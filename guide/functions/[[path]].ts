@@ -16,7 +16,7 @@ export const onRequest: PagesFunction<Env> = (context) => {
 	return handleRequest(context.request, {
 		env: {
 			...context.env,
-			CF_PAGES_BRANCH: 'guide-v2',
+			CF_PAGES_BRANCH: 'main',
 		},
 		waitUntil(promise: Promise<unknown>) {
 			context.waitUntil(promise);

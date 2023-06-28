@@ -66,10 +66,18 @@ function Product() {
   return (
     <form {...form.props}>
       <input type="hidden" name="productId" value="rf23g43" />
-      <button type="submit" name={conform.INTENT} value="add-to-cart">
+      <button
+        type="submit"
+        name={conform.INTENT}
+        value="add-to-cart"
+      >
         Add to Cart
       </button>
-      <button type="submit" name={conform.INTENT} value="buy-now">
+      <button
+        type="submit"
+        name={conform.INTENT}
+        value="buy-now"
+      >
         Buy now
       </button>
     </form>
@@ -82,7 +90,12 @@ function Product() {
 Conform provides built-in [list](/packages/conform-react/README.md#list) intent button builder for you to modify a list of fields.
 
 ```tsx
-import { useForm, useFieldList, conform, list } from '@conform-to/react';
+import {
+  useForm,
+  useFieldList,
+  conform,
+  list,
+} from '@conform-to/react';
 
 export default function Todos() {
   const [form, { tasks }] = useForm();
@@ -94,7 +107,9 @@ export default function Todos() {
         {taskList.map((task, index) => (
           <li key={task.key}>
             <input name={task.name} />
-            <button {...list.remove(tasks.name, { index })}>Delete</button>
+            <button {...list.remove(tasks.name, { index })}>
+              Delete
+            </button>
           </li>
         ))}
       </ul>
@@ -133,7 +148,12 @@ export default function Todos() {
 Sometimes, it could be useful to trigger an intent without requiring users to click on the intent button. We can achieve it by capturing the button element with `useRef` and triggering the intent with `button.click()`
 
 ```tsx
-import { useForm, useFieldList, conform, list } from '@conform-to/react';
+import {
+  useForm,
+  useFieldList,
+  conform,
+  list,
+} from '@conform-to/react';
 import { useEffect } from 'react';
 
 export default function Todos() {

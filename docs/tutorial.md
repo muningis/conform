@@ -68,7 +68,11 @@ export default function LoginForm() {
     <Form method="post">
       <div>
         <label>Email</label>
-        <input type="email" name="email" defaultValue={result?.value.email} />
+        <input
+          type="email"
+          name="email"
+          defaultValue={result?.value.email}
+        />
         <div>{result.error.email}</div>
       </div>
       <div>
@@ -137,7 +141,10 @@ export async function action({ request }: ActionArgs) {
     });
   }
 
-  return await authenticate(submission.value.email, submission.value.password);
+  return await authenticate(
+    submission.value.email,
+    submission.value.password,
+  );
 }
 
 export default function LoginForm() {
@@ -159,7 +166,11 @@ export default function LoginForm() {
     <Form method="post" {...form.props}>
       <div>
         <label>Email</label>
-        <input type="email" name="email" defaultValue={email.defaultValue} />
+        <input
+          type="email"
+          name="email"
+          defaultValue={email.defaultValue}
+        />
         <div>{email.error}</div>
       </div>
       <div>
@@ -226,7 +237,10 @@ export async function action({ request }: ActionArgs) {
     });
   }
 
-  return await authenticate(submission.value.email, submission.value.password);
+  return await authenticate(
+    submission.value.email,
+    submission.value.password,
+  );
 }
 
 export default function LoginForm() {
@@ -245,7 +259,11 @@ export default function LoginForm() {
     <Form method="post" {...form.props}>
       <div>
         <label>Email</label>
-        <input type="email" name="email" defaultValue={email.defaultValue} />
+        <input
+          type="email"
+          name="email"
+          defaultValue={email.defaultValue}
+        />
         <div>{email.error}</div>
       </div>
       <div>

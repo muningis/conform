@@ -40,7 +40,10 @@ import { useForm, useFieldset } from '@conform-to/react';
 
 function Example() {
   const [form, { address }] = useForm<Schema>();
-  const { city, zipcode, street, country } = useFieldset(form.ref, address);
+  const { city, zipcode, street, country } = useFieldset(
+    form.ref,
+    address,
+  );
 
   return (
     <form {...form.props}>
@@ -93,7 +96,11 @@ You can also combine both [useFieldset](/packages/conform-react/README.md#usefie
 
 ```tsx
 import type { FieldConfig } from '@conform-to/react';
-import { useForm, useFieldset, useFieldList } from '@conform-to/react';
+import {
+  useForm,
+  useFieldset,
+  useFieldList,
+} from '@conform-to/react';
 
 interface Todo {
   title: string;

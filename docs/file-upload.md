@@ -91,7 +91,11 @@ const schema = z.object({
       if (Array.isArray(value)) {
         // No preprocess needed if the value is already an array
         return value;
-      } else if (value instanceof File && value.name !== '' && value.size > 0) {
+      } else if (
+        value instanceof File &&
+        value.name !== '' &&
+        value.size > 0
+      ) {
         // Wrap it in an array if the file is valid
         return [value];
       } else {
@@ -100,7 +104,9 @@ const schema = z.object({
       }
     }, z.instanceof(File).array().min(1, 'At least 1 file is required'))
     .refine(
-      (files) => files.reduce((size, file) => size + file.size, 0) < 5 * 1024,
+      (files) =>
+        files.reduce((size, file) => size + file.size, 0) <
+        5 * 1024,
       'Total file size must be less than 5kb',
     ),
 });

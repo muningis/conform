@@ -43,7 +43,11 @@ export async function action({ request }: ActionArgs) {
         error.confirmPassword = 'Password does not match';
       }
 
-      if (error.email || error.password || error.confirmPassword) {
+      if (
+        error.email ||
+        error.password ||
+        error.confirmPassword
+      ) {
         return { error };
       }
 
@@ -102,14 +106,22 @@ export async function action({ request }: ActionArgs) {
   const submission = parse(formData, {
     schema: z
       .object({
-        email: z.string().min(1, 'Email is required').email('Email is invalid'),
+        email: z
+          .string()
+          .min(1, 'Email is required')
+          .email('Email is invalid'),
         password: z.string().min(1, 'Password is required'),
-        confirmPassword: z.string().min(1, 'Confirm password is required'),
+        confirmPassword: z
+          .string()
+          .min(1, 'Confirm password is required'),
       })
-      .refine((value) => value.password === value.confirmPassword, {
-        message: 'Password does not match',
-        path: ['confirmPassword'],
-      }),
+      .refine(
+        (value) => value.password === value.confirmPassword,
+        {
+          message: 'Password does not match',
+          path: ['confirmPassword'],
+        },
+      ),
   });
 
   if (!submission.value || submission.intent !== 'submit') {
@@ -131,9 +143,14 @@ import { parse } from '@conform-to/zod';
 // Move the schema definition out of action
 const schema = z
   .object({
-    email: z.string().min(1, 'Email is required').email('Email is invalid'),
+    email: z
+      .string()
+      .min(1, 'Email is required')
+      .email('Email is invalid'),
     password: z.string().min(1, 'Password is required'),
-    confirmPassword: z.string().min(1, 'Confirm password is required'),
+    confirmPassword: z
+      .string()
+      .min(1, 'Confirm password is required'),
   })
   .refine((value) => value.password === value.confirmPassword, {
     message: 'Password does not match',
@@ -250,7 +267,8 @@ function createSchema(
         refine(ctx, {
           validate: () => constraints.isEmailUnique?.(email),
           // Validate only when the email field is changed or when submitting
-          when: intent === 'validate/email' || intent === 'submit',
+          when:
+            intent === 'validate/email' || intent === 'submit',
           message: 'Email is already used',
         }),
       ),
