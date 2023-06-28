@@ -86,6 +86,8 @@ function Example() {
 
 When you need to setup a list of fields, you can pass the parent field config to the[useFieldList](/packages/conform-react/README.md#usefieldlist) hook to get access to each item field with name infered automatically as well.
 
+For information about modifying list (e.g. append / remove / reorder), see the [Modifying a list](/docs/intent-button.md#modifying-a-list) section.
+
 <!-- /col -->
 
 <!-- col sticky=true -->
@@ -113,8 +115,6 @@ function Example() {
 }
 ```
 
-For information about modifying list (e.g. append / remove / reorder), see the [Modifying a list](/docs/intent-button.md#modifying-a-list) section.
-
 <!-- /col -->
 
 <!-- /row -->
@@ -128,6 +128,10 @@ For information about modifying list (e.g. append / remove / reorder), see the [
 ## Nested List
 
 You can also combine both [useFieldset](/packages/conform-react/README.md#usefieldset) and [useFieldList](/packages/conform-react/README.md#usefieldlist) hook for nested list.
+
+<!-- /col -->
+
+<!-- col sticky=true -->
 
 ```tsx
 import type { FieldConfig } from '@conform-to/react';
