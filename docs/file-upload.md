@@ -1,10 +1,6 @@
 # File Upload
 
-<!-- lead -->
-
 Conform support validating file input as well.
-
-<!-- /lead -->
 
 <!-- row -->
 
