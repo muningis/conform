@@ -1,4 +1,4 @@
-import { conform, useFieldset, useForm } from '@conform-to/react';
+import { conform, useFieldset, useForm, report } from '@conform-to/react';
 import {
 	getFieldsetConstraint,
 	ifNonEmptyString,
@@ -43,7 +43,7 @@ export async function action({ request }: ActionArgs) {
 	const formData = await request.formData();
 	const submission = parse(formData, { schema });
 
-	return json(submission);
+	return json(report(submission));
 }
 
 export default function PaymentForm() {
