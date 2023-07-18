@@ -23,19 +23,16 @@ function createSchema() {
 				.regex(/^[A-Z]{1-100}$/, 'regex')
 				.refine(() => false, 'refine'),
 			number: z
-				.string({ required_error: 'required' })
-				.pipe(z.coerce.number().min(1, 'min').max(10, 'max').step(2, 'step')),
+				.number({ required_error: 'required' })
+				.min(1, 'min')
+				.max(10, 'max')
+				.step(2, 'step'),
 			timestamp: z
-				.string()
-				.optional()
-				.pipe(
-					z.coerce
-						.date()
-						.min(new Date(1), 'min')
-						.max(new Date(), 'max')
-						.default(new Date()),
-				),
-			flag: z.coerce.boolean().optional(),
+				.date()
+				.min(new Date(1), 'min')
+				.max(new Date(), 'max')
+				.default(new Date()),
+			flag: z.boolean().optional(),
 			options: z
 				.array(z.enum(['a', 'b', 'c']).refine(() => false, 'refine'))
 				.min(3, 'min'),

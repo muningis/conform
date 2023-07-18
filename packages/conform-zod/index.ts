@@ -9,6 +9,154 @@ import {
 } from '@conform-to/dom';
 import * as z from 'zod';
 
+export function coerceString(
+	value: unknown,
+	transform?: (text: string) => unknown,
+) {
+	if (typeof value !== 'string') {
+		return value;
+	}
+
+	if (value === '') {
+		return undefined;
+	}
+
+	if (typeof transform !== 'function') {
+		return value;
+	}
+
+	return transform(value);
+}
+
+export function coerceFile(file: unknown) {
+	if (file instanceof File && file.name === '' && file.size === 0) {
+		return undefined;
+	}
+
+	return file;
+}
+
+export function enhanceSchema<Type>(schema: z.ZodType<Type>): z.ZodType<Type> {
+	/**
+	 * We might be able to fix all type errors with function overloads
+	 * But I'm not sure if it's worth the effort
+	 */
+	if (
+		schema instanceof z.ZodString ||
+		schema instanceof z.ZodEnum ||
+		schema instanceof z.ZodLiteral
+	) {
+		// @ts-expect-error see message above
+		return z.preprocess((value) => coerceString(value), schema);
+	} else if (schema instanceof z.ZodNumber) {
+		// @ts-expect-error see message above
+		return z.preprocess((value) => coerceString(value, Number), schema);
+	} else if (schema instanceof z.ZodBoolean) {
+		// @ts-expect-error see message above
+		return z.preprocess((value) => coerceString(value, Boolean), schema);
+	} else if (schema instanceof z.ZodDate) {
+		// @ts-expect-error see message above
+		return z.preprocess(
+			(value) => coerceString(value, (timestamp) => new Date(timestamp)),
+			schema,
+		);
+	} else if (schema instanceof z.ZodArray) {
+		// @ts-expect-error see message above
+		return z.preprocess(
+			(value) => {
+				// No preprocess needed if the value is already an array
+				if (Array.isArray(value)) {
+					return value;
+				}
+
+				if (
+					typeof coerceString(value) === 'undefined' ||
+					typeof coerceFile(value) === 'undefined'
+				) {
+					return [];
+				}
+
+				// Wrap it in an array if the file is valid
+				return [value];
+			},
+			new z.ZodArray({
+				...schema._def,
+				type: enhanceSchema(schema.element),
+			}),
+		);
+	} else if (schema instanceof z.ZodObject) {
+		// @ts-expect-error see message above
+		return z.object(
+			Object.fromEntries(
+				Object.entries(schema.shape).map(([key, def]) => [
+					key,
+					// @ts-expect-error see message above
+					enhanceSchema(def),
+				]),
+			),
+		);
+	} else if (schema instanceof z.ZodIntersection) {
+		// @ts-expect-error see message above
+		return new z.ZodIntersection({
+			...schema._def,
+			left: enhanceSchema(schema._def.left),
+			right: enhanceSchema(schema._def.right),
+		});
+	} else if (schema instanceof z.ZodUnion) {
+		return new z.ZodUnion({
+			...schema._def,
+			options: schema.options.map(enhanceSchema),
+		});
+	} else if (schema instanceof z.ZodDiscriminatedUnion) {
+		return new z.ZodDiscriminatedUnion({
+			...schema._def,
+			options: schema.options.map(enhanceSchema),
+		});
+	} else if (schema instanceof z.ZodTuple) {
+		// @ts-expect-error see message above
+		return new z.ZodTuple({
+			...schema._def,
+			items: schema.items.map(enhanceSchema),
+		});
+	} else if (schema instanceof z.ZodPipeline) {
+		// @ts-expect-error see message above
+		return new z.ZodPipeline({
+			...schema._def,
+			in: enhanceSchema(schema._def.in),
+		});
+	} else if (schema instanceof z.ZodEffects) {
+		// A file schema is usually defined as `z.instanceOf(File)`
+		// which is implemented based on ZodAny with `superRefine`
+		// You can check the `instanceOfType` function on zod for more info
+		if (
+			schema._def.effect.type === 'refinement' &&
+			schema.innerType() instanceof z.ZodAny
+		) {
+			// @ts-expect-error see message above
+			return z.preprocess((value) => coerceFile(value), schema);
+		}
+
+		return new z.ZodEffects({
+			...schema._def,
+			schema: enhanceSchema(schema.innerType()),
+		});
+	} else if (schema instanceof z.ZodOptional) {
+		// @ts-expect-error see message above
+		return new z.ZodOptional({
+			...schema._def,
+			innerType: enhanceSchema(schema.unwrap()),
+		});
+	} else if (schema instanceof z.ZodDefault) {
+		// @ts-expect-error see message above
+		return new z.ZodDefault({
+			...schema._def,
+			innerType: enhanceSchema(schema.removeDefault()),
+		});
+	}
+
+	return schema;
+}
+
 export function getFieldsetConstraint<Source extends z.ZodTypeAny>(
 	source: Source,
 ): FieldsetConstraint<z.input<Source>> {
@@ -199,12 +347,16 @@ export function parse<Schema extends z.ZodTypeAny>(
 	},
 ): Submission<z.output<Schema>> | Promise<Submission<z.output<Schema>>> {
 	return baseParse<z.output<Schema>>(payload, {
-		stripEmptyValue: config.stripEmptyValue ?? true,
 		resolve(payload, intent) {
-			const schema =
+			let schema: z.ZodType<Schema> =
 				typeof config.schema === 'function'
 					? config.schema(intent)
 					: config.schema;
+
+			if (config.stripEmptyValue ?? true) {
+				schema = enhanceSchema(schema);
+			}
+
 			const resolveResult = (
 				result: z.SafeParseReturnType<z.input<Schema>, z.output<Schema>>,
 			): { value: z.output<Schema> } | { error: Record<string, string[]> } => {
